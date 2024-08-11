@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import random
 
-app = FastAPI(version="v0.1.0.0")
+app = FastAPI(version="1.0.0")
 
 # Configure CORS
 app.add_middleware(
