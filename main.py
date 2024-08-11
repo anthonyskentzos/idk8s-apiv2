@@ -28,16 +28,16 @@ paw_patrol_characters = [
 
 @app.get("/")
 def read_root():
-    return "Why are you here?"
+    return {"message": "Why are you here?"}
 
 @app.get("/pawpatrol")
 def get_pawpatrol_character():
     random_character = random.choice(paw_patrol_characters)
     return {"character": random_character}
 
-@app.get("/appver"):
+@app.get("/appver")
 async def version():
-    return {"version": app.version}
+    return {"appVer": app.version}
 
 # To run the app, use: uvicorn main:app --host 0.0.0.0 --port 3001
 if __name__ == "__main__":
