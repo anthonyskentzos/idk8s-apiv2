@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import random
 
-app = FastAPI()
+app = FastAPI(version="v0.1.0.0")
 
 # Configure CORS
 app.add_middleware(
@@ -34,6 +34,10 @@ def read_root():
 def get_pawpatrol_character():
     random_character = random.choice(paw_patrol_characters)
     return {"character": random_character}
+
+@app.get("/appver"):
+async def version():
+    return {"version": app.version}
 
 # To run the app, use: uvicorn main:app --host 0.0.0.0 --port 3001
 if __name__ == "__main__":
