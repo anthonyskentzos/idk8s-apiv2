@@ -22,7 +22,8 @@ paw_patrol_characters = [
     'Zuma',
     'Rocky',
     'Everest',
-    'Tracker'
+    'Tracker',
+    'Ryder'
 ]
 
 @app.get("/")
