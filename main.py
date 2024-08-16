@@ -7,7 +7,7 @@ app = FastAPI(version="1.0.0")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://idk8s.example"],  # List of allowed origins
+    allow_origins=["*"],  # List of allowed origins
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
