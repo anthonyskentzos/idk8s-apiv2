@@ -26,7 +26,7 @@ jobs:
           docker buildx build . \
           --file Dockerfile \
           --tag ghcr.io/${{ github.repository_owner }}/idk8s-apiv2:latest \
-          --tag ghcr.io/${{ github.repository_owner }}/idk8s-apiv2:${{ env.SHORT_SHA }}
+          --tag ghcr.io/${{ github.repository_owner }}/idk8s-apiv2:${{ env.SHORT_SHA }} \
           --build-arg IMAGE_TAG=${{ env.SHORT_SHA }}
 
     - name: Push to GitHub Container Registry
