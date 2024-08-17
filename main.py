@@ -35,9 +35,10 @@ def get_pawpatrol_character():
     random_character = random.choice(paw_patrol_characters)
     return {"character": random_character}
 
-@app.get("/appver")
+@app.get("/imagetag")
 async def version():
-    return {"appVer": app.version}
+    image_tag = os.getenv("IMAGE_TAG", "IMAGE_TAG not set")
+    return {"imageTagVer": image_tag}
 
 # To run the app, use: uvicorn main:app --host 0.0.0.0 --port 3001
 if __name__ == "__main__":

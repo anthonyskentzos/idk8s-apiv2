@@ -10,4 +10,7 @@ COPY main.py .
 
 EXPOSE 3001
 
+ARG IMAGE_TAG
+ENV IMAGE_TAG=$IMAGE_TAG
+
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3001"]
