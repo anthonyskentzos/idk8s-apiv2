@@ -3,35 +3,71 @@ name: Docker Image CI
 on:
   push:
     branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+
+env:
+  APP_NAME: idk8s-apiv2
+  INFRA_REPO: anthonyskentzos/idk8s-infra
+  INFRA_DIR: apps/apiv2/envs/dev
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    outputs:
+      short_sha: ${{ steps.short-sha.outputs.short_sha }}
     steps:
     - name: Checkout the repository
       uses: actions/checkout@v4
-  
-    - name: Short SHA
+
+    - name: Generate Short SHA
+      id: short-sha
       run: |
-        echo "SHORT_SHA=$(git rev-parse --short=7 HEAD)" >> $GITHUB_ENV
-    
+        echo "short_sha=$(git rev-parse --short=7 HEAD)" >> $GITHUB_OUTPUT
+        echo "short_sha=$(git rev-parse --short=7 HEAD)" >> $GITHUB_ENV
+        echo ${{ env.short_sha }}
+
     - name: Docker Build
       run: |
           docker buildx build . \
           --file Dockerfile \
-          --tag ghcr.io/${{ github.repository_owner }}/idk8s-apiv2:latest \
-          --tag ghcr.io/${{ github.repository_owner }}/idk8s-apiv2:${{ env.SHORT_SHA }} \
-          --build-arg IMAGE_TAG=${{ env.SHORT_SHA }}
+          --tag ghcr.io/${{ github.repository_owner }}/${{ env.APP_NAME }}:latest \
+          --tag ghcr.io/${{ github.repository_owner }}/${{ env.APP_NAME }}:${{ env.short_sha }} \
+          --build-arg IMAGE_TAG=${{ env.short_sha }}
 
     - name: Push to GitHub Container Registry
       run: |
         echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         
-        docker push ghcr.io/${{ github.repository_owner }}/idk8s-apiv2:${{ env.SHORT_SHA }}
-        # ghcr.io/${{ github.repository_owner }}/idk8s-apiv2:latest
+        docker push ghcr.io/${{ github.repository_owner }}/${{ env.APP_NAME }}:${{ env.short_sha }}
+        # ghcr.io/${{ github.repository_owner }}/${{ env.APP_NAME }}:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - name: Git checkout idk8s-infra
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ env.INFRA_REPO }}
+          token: ${{ secrets.IDK8S_PAT }} 
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v2.1.0
+        with:
+          kustomize-version: 4.0.0
+
+      - name: Update Kustomize Image
+        run: kustomize edit set image ghcr.io/${{ github.repository_owner }}/${{ env.APP_NAME }}:${{ needs.build.outputs.short_sha }}
+        working-directory: ${{ env.INFRA_DIR }}
+
+      - name: Commit and Push Changes
+        run: |
+          git config user.email "gitops@idk8s.example"
+          git config user.name "gitops"
+          git commit -am "update ${{ env.APP_NAME }} to ${{ needs.build.short_sha }}"
+          git pull --rebase
+          git push
+
