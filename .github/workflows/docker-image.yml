@@ -67,7 +67,7 @@ jobs:
         run: |
           git config user.email "gitops@idk8s.example"
           git config user.name "gitops"
-          git commit -am "update ${{ env.APP_NAME }} to ${{ needs.build.output.short_sha }}"
+          git commit -am "update ${{ env.APP_NAME }} to ${{ needs.build.outputs.short_sha }}"
           git pull --rebase
           git push
 
